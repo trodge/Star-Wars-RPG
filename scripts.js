@@ -7,18 +7,18 @@ class Character {
     }
 
     display() {
-        this.box = $('<div class="character-box" style="border: 3px + ' + this.color + ' solid"');
+        this.box = $('<div class="character-box" style="border: 3px ' + this.color + ' solid">');
         var nameTag = $('<p class="character-tag">')
         nameTag.text(this.name);
         this.box.append(nameTag);
-        var image = $('<img src="' + this.name.replace(/ /g, '-') + '.jpg" width=180');
+        var image = $('<img src="' + this.name.replace(/ /g, '-') + '.jpg" width=180>');
         this.box.append(image);
         var hpTag = $('<p class="character-tag">')
         hpTag.text(this.hp);
         this.box.append(hpTag);
         this.box.on('click', function () {
         });
-        document.getElementById('characters-box').appendChild(this.box);
+        $('#characters-box').append(this.box);
     }
 }
 
