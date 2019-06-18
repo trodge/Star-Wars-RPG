@@ -1,61 +1,88 @@
-function test() {
-    var winningOrders = {};
-    for (var i = 0; i < characters.length; ++i) {
-        player = characters[i];
-        // Make an array of attackable characters.
-        var attackables = [];
-        characters.forEach(function (c) { if (player.canAttack(c)) attackables.push(c); });
-        // Construct an array of orders to attack characters in.
-        var orders = [];
-        var firstOrder = [];
-        for (var j = 0; j < attackables.length; ++j) {
-            firstOrder.push(j);
-        }
-        orders.push(firstOrder.slice());
-        // variable to track whether k index found
-        var found = true;
-        while (found) {
-            found = false;
-            for (var k = firstOrder.length - 1; k >= 0; --k) {
-                if (firstOrder[k] < firstOrder[k + 1]) {
-                    // k satisfies condition
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
-                for (var m = firstOrder.length - 1; m > k; --m) {
-                    if (firstOrder[k] < firstOrder[m]) break;
-                }
-                var swap = firstOrder[k];
-                firstOrder[k] = firstOrder[m];
-                firstOrder[m] = swap;
-                // Reverse elements after k.
-                swap = firstOrder.splice(k + 1);
-                swap.reverse();
-                firstOrder = firstOrder.concat(swap);
-                orders.push(firstOrder.slice());
+function permutate(array) {
+    // Return an array of all permutations of parameter array
+    var permutations = [];
+    var a = array.slice();
+    permutations.push(a.slice());
+    // variable to track whether k index found
+    var found = true;
+    while (found) {
+        found = false;
+        for (var k = a.length - 1; k >= 0; --k) {
+            if (a[k] < a[k + 1]) {
+                // k satisfies condition
+                found = true;
+                break;
             }
         }
-        // orders now contains all possible orders to attack attackables
-        winningOrders[player.name] = [];
-        for (var j = 0; j < orders.length; ++j) {
-            for (var k = 0; k < orders[j].length; ++k) {
-                while (attackables[orders[j][k]].hp > 0) {
-                    player.attack(attackables[orders[j][k]], false);
-                }
+        if (found) {
+            for (var m = a.length - 1; m > k; --m) {
+                if (a[k] < a[m]) break;
             }
-            if (player.hp > 0) {
-                // Record this order as a winner for player character
-                winningOrders[player.name].push(orders[j]);
-            }
-            // Reset all characters to starting hp
-            for (var k = 0; k < characters.length; ++k) characters[k].hp = characters[k].startingHp;
-            // Reset player's attack power
-            player.AttackPower = player.startingAttack;
+            var swap = a[k];
+            a[k] = a[m];
+            a[m] = swap;
+            // Reverse elements after k.
+            swap = a.splice(k + 1);
+            swap.reverse();
+            a = a.concat(swap);
+            permutations.push(a.slice());
         }
     }
-    console.log(winningOrders);
+    return permutations;
+}
+
+function test(p) {
+    // Test the paths of a character and return winning paths.
+    // Test all characters if none specified.
+    if (!p) {
+        var winningOrders = {};
+        for (var i = 0; i < characters.length; ++i)
+            winningOrders[characters[i].name] = test(characters[i]);
+        return winningOrders;
+    }
+    // Make an array of attackable characters.
+    var attackables = [];
+    characters.forEach(function (c) { if (p.canAttack(c)) attackables.push(c); });
+    // Construct an array of orders to attack characters in.
+    var orders = [];
+    var firstOrder = [];
+    for (var j = 0; j < attackables.length; ++j) {
+        firstOrder.push(j);
+    }
+    if (p.color === 'red') {
+        // Remove each other sith from first order and permutate then concatenate onto orders
+        for (var j = 0; j < attackables.length; ++j) {
+            if (attackables[j].color === 'red') {
+                firstOrder.splice(j, 1);
+                orders = orders.concat(permutate(firstOrder));
+                firstOrder.splice(j, 0, j);
+            }
+        }
+    } else orders = permutate(firstOrder);
+    // orders now contains all possible orders to attack attackables
+    winningOrders = [];
+    for (var j = 0; j < orders.length; ++j) {
+        for (var k = 0; k < orders[j].length; ++k) {
+            while (attackables[orders[j][k]].hp > 0) {
+                p.attack(attackables[orders[j][k]], false);
+            }
+        }
+        if (p.hp > 0) {
+            // Record this order as a winner for p character
+            winningOrders.push(orders[j].map(m => attackables[m].name));
+        }
+        // Reset all characters to starting hp
+        for (var k = 0; k < characters.length; ++k) characters[k].hp = characters[k].startingHp;
+        // Reset p's attack power
+        p.attackPower = p.startingAttack;
+    }
+    // If a character has no winning paths, increase starting attack and test again
+    if (!winningOrders.length) {
+        p.attackPower = ++p.startingAttack;
+        console.log('increased ' + p.name + ' to ' + p.startingAttack);
+        return test(p);
+    }
+    return winningOrders;
 }
 
 function sithCount() {
@@ -101,7 +128,7 @@ class Character {
         var that = this;
         this.box.on('click', function () {
             $('#characters-box').remove();
-            $('#player-character-box').append($('<h2>').text('Your Character'));
+            $('#p-character-box').append($('<h2>').text('Your Character'));
             $('#player-character-box').append(that.box);
             player = that;
             that.fillEnemyBoxes();
@@ -160,7 +187,7 @@ class Character {
 
     }
 
-    attack(other, record=true) {
+    attack(other, record = true) {
         // Attack other, return true if other is dead otherwise return false.
         other.hp -= ++this.attackPower;
         if (other.hp <= 0) {
@@ -182,14 +209,14 @@ class Character {
     }
 }
 
-var characters = [new Character('Luke Skywalker', 'green', 100, 22, 10),
-new Character('Obi-Wan Kenobi', 'blue', 120, 20, 9),
-new Character('Yoda', 'green', 150, 16, 6),
-new Character('Mace Windu', 'purple', 110, 23, 9),
-new Character('Darth Sidius', 'red', 150, 17, 7),
-new Character('Darth Vader', 'red', 130, 24, 10),
-new Character('Darth Maul', 'red', 100, 27, 12),
-new Character('Count Dooku', 'red', 120, 19, 11)];
+var characters = [new Character('Luke Skywalker', 'green', 100, 30, 10),
+new Character('Obi-Wan Kenobi', 'blue', 120, 23, 9),
+new Character('Yoda', 'green', 150, 15, 6),
+new Character('Mace Windu', 'purple', 110, 27, 9),
+new Character('Darth Sidius', 'red', 150, 21, 7),
+new Character('Darth Vader', 'red', 130, 26, 10),
+new Character('Darth Maul', 'red', 100, 35, 12),
+new Character('Count Dooku', 'red', 120, 31, 11)];
 
 var player;
 var defender;
