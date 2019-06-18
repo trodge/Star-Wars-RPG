@@ -1,3 +1,15 @@
+function sithCount() {
+    var count = 0;
+    characters.forEach(function (c) { if (c.hp > 0 && c.color === 'red')++count; });
+    return count;
+}
+
+function jediCount() {
+    var count = 0;
+    characters.forEach(function (c) { if (c.hp > 0 && c.color !== 'red')++count; });
+    return count;
+}
+
 class Character {
     constructor(name, color, hp, attackPower, counter) {
         this.name = name;
@@ -35,13 +47,17 @@ class Character {
         $('#characters-box').append(this.box);
     }
 
+    canAttack(other) {
+        return other.name !== this.name &&
+            other.hp > 0 &&
+            ((this.color === 'red' && (sithCount() > 2 || other.color !== 'red')) ||
+                other.color === 'red');
+    }
+
     fillEnemyBoxes() {
         $('#enemies-box').append($('<h2 class="centered">').text('Choose an Enemy to Attack'))
         for (var i = 0; i < characters.length; ++i) {
-            if (characters[i].name !== this.name &&
-                characters[i].hp > 0 &&
-                (this.color === 'red' || characters[i].color === 'red')) {
-                // This is sith or other is sith.
+            if (this.canAttack(characters[i])) {
                 characters[i].box.on('click', function () {
                     $('#enemies-box').empty();
                     var attackButton = $('<button class="attack-button">');
@@ -56,13 +72,21 @@ class Character {
                         // Player attacks defender
                         if (player.attack(defender)) {
                             // defender died
-                            $('#attack-button-box').empty();
-                            $('#defender-box').empty();
-                            player.fillEnemyBoxes();
-                        }
-                        if (player.hp <= 0) {
+                            if ((player.color !== 'red' && sithCount()) ||
+                                (player.color === 'red' && (jediCount() || sithCount() > 2))) {
+                                // enemies remain
+                                $('#attack-button-box').empty();
+                                $('#defender-box').empty();
+                                player.fillEnemyBoxes();
+                            } else {
+                                // no enemies remain
+                                $('section').empty();
+                                $('section').append($('<h1>').text('You Win'));
+                            }
+                        } else if (player.hp <= 0) {
                             // player died
-                            
+                            $('section').empty();
+                            $('section').append($('<h1>').text('Game Over'));
                         }
                     });
                     $('#attack-button-box').append(attackButton);
@@ -96,12 +120,12 @@ class Character {
     }
 }
 
-var characters = [new Character('Luke Skywalker', 'green', 100, 20, 10),
-new Character('Obi-Wan Kenobi', 'blue', 120, 18, 9),
-new Character('Mace Windu', 'purple', 110, 19, 9),
-new Character('Darth Sidius', 'red', 150, 15, 7),
-new Character('Darth Maul', 'red', 100, 25, 12),
-new Character('Count Dooku', 'red', 120, 23, 11)];
+var characters = [new Character('Luke Skywalker', 'green', 100, 22, 10),
+new Character('Obi-Wan Kenobi', 'blue', 120, 20, 9),
+new Character('Mace Windu', 'purple', 110, 21, 9),
+new Character('Darth Sidius', 'red', 150, 17, 7),
+new Character('Darth Maul', 'red', 100, 27, 12),
+new Character('Count Dooku', 'red', 120, 25, 11)];
 
 var player;
 var defender;
