@@ -1,3 +1,8 @@
+body {
+    background: black url("star-wars-wallpaper-10.jpg") no-repeat center;
+    height: 1080px;
+}
+
 .centered {
     text-align: center;
 }
