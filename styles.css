@@ -30,6 +30,27 @@ header {
     text-shadow: none;
 }
 
+#characters-box, #enemies-box {
+    width: 85%;
+    margin: auto;
+}
+
+#attack-button-box {
+    padding: 20px;
+    width: 100px;
+    margin: auto;
+}
+
+#player-character-box {
+    width: 156px;
+    margin: auto;
+}
+
+#defender-box {
+    width: 156px;
+    margin: auto;
+}
+
 #combat-log {
     font-size: 12px;
 }

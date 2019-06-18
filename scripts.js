@@ -151,6 +151,7 @@ class Character {
                     $('#enemies-box').empty();
                     var attackButton = $('<button class="attack-button">');
                     attackButton.text('Attack');
+                    attackButton.css({'margin': 'auto', 'width': '100px'});
                     // Name of defending character
                     var defenderName = $(this).children('#name-tag').text();
                     // Defending character found by name
@@ -170,12 +171,12 @@ class Character {
                             } else {
                                 // no enemies remain
                                 $('section').empty();
-                                $('section').append($('<h1>').text('You Win'));
+                                $('section').append($('<h1 class="centered">').text('You Win'));
                             }
                         } else if (player.hp <= 0) {
                             // player died
                             $('section').empty();
-                            $('section').append($('<h1>').text('Game Over'));
+                            $('section').append($('<h1 class="centered">').text('Game Over'));
                         }
                     });
                     $('#attack-button-box').append(attackButton);
