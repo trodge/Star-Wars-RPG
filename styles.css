@@ -6,11 +6,12 @@ body {
 }
 
 header {
-    padding: 20px;
+    padding: 5px;
 }
 
 .centered {
     text-align: center;
+    margin: 5px;
 }
 
 
@@ -36,7 +37,7 @@ header {
 }
 
 #attack-button-box {
-    padding: 20px;
+    padding: 10px;
     width: 100px;
     margin: auto;
 }

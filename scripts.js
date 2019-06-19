@@ -32,13 +32,13 @@ function permutate(array) {
 }
 
 function test(p) {
-    // Test the paths of a character and return winning paths.
+    // Test the paths of a character and return winning and losing paths.
     // Test all characters if none specified.
     if (!p) {
-        var winningOrders = {};
+        var results = {};
         for (var i = 0; i < characters.length; ++i)
-            winningOrders[characters[i].name] = test(characters[i]);
-        return winningOrders;
+            results[characters[i].name] = test(characters[i]);
+        return results;
     }
     // Make an array of attackable characters.
     var attackables = [];
@@ -60,7 +60,10 @@ function test(p) {
         }
     } else orders = permutate(firstOrder);
     // orders now contains all possible orders to attack attackables
-    winningOrders = [];
+    var results = {
+        winning: [],
+        losing: []
+    };
     for (var j = 0; j < orders.length; ++j) {
         for (var k = 0; k < orders[j].length; ++k) {
             while (attackables[orders[j][k]].hp > 0) {
@@ -68,8 +71,11 @@ function test(p) {
             }
         }
         if (p.hp > 0) {
-            // Record this order as a winner for p character
-            winningOrders.push(orders[j].map(m => attackables[m].name));
+            // Record this order as a winner
+            results.winning.push(orders[j].map(m => attackables[m].name));
+        } else {
+            // Record losing order
+            results.losing.push(orders[j].map(m => attackables[m].name));
         }
         // Reset all characters to starting hp
         for (var k = 0; k < characters.length; ++k) characters[k].hp = characters[k].startingHp;
@@ -77,12 +83,12 @@ function test(p) {
         p.attackPower = p.startingAttack;
     }
     // If a character has no winning paths, increase starting attack and test again
-    if (!winningOrders.length) {
+    if (!results.winning.length) {
         p.attackPower = ++p.startingAttack;
         console.log('increased ' + p.name + ' to ' + p.startingAttack);
         return test(p);
     }
-    return winningOrders;
+    return results;
 }
 
 function sithCount() {
@@ -151,7 +157,7 @@ class Character {
                     $('#enemies-box').empty();
                     var attackButton = $('<button class="attack-button">');
                     attackButton.text('Attack');
-                    attackButton.css({'margin': 'auto', 'width': '100px'});
+                    attackButton.css({ 'margin': 'auto', 'width': '100px' });
                     // Name of defending character
                     var defenderName = $(this).children('#name-tag').text();
                     // Defending character found by name
@@ -171,12 +177,20 @@ class Character {
                             } else {
                                 // no enemies remain
                                 $('section').empty();
-                                $('section').append($('<h1 class="centered">').text('You Win'));
+                                $('section').append($('<h1 class="centered">').html(player.color === 'red' ?
+                                    'You have destroyed all who would stand in your way.<br>' +
+                                    (sithCount() === 1 ? 'You alone rule the galaxy.' :
+                                        'You and your apprentice, ' +
+                                        characters.find(function (c) { return c.hp > 0; }).name +
+                                        ', rule the galaxy.') :
+                                    'You have vanquished the sith. The galaxy is safe.'));
                             }
                         } else if (player.hp <= 0) {
                             // player died
                             $('section').empty();
-                            $('section').append($('<h1 class="centered">').text('Game Over'));
+                            $('section').append($('<h1 class="centered">').html(player.color === 'red' ?
+                                'You were defeated by the jedi.<br>Now only the sith will tell your story' :
+                                'You have become one with the force.'));
                         }
                     });
                     $('#attack-button-box').append(attackButton);
@@ -197,27 +211,24 @@ class Character {
             return true;
         }
         this.hp -= other.counter;
-        if (this.hp <= 0) {
-            if (record) $('#combat-log').append(other.name + ' attacks ' + this.name + ' for ' +
-                other.counter + ' damage. ' + this.name + ' dies.<br>');
-            return false;
+        if (record) {
+            $('#combat-log').append(this.name + ' attacks ' + other.name + ' for ' +
+                this.attackPower + ' damage. ' + other.name + '\'s HP: ' + other.hp + '<br>');
+            $('#combat-log').append(other.name + ' attacks ' + this.name + ' for ' + other.counter +
+                ' damage. ' + this.name + (this.hp > 0 ? '\'s HP: ' + this.hp : ' dies.') + '<br>');
         }
-        if (record) $('#combat-log').append(this.name + ' attacks ' + other.name + ' for ' +
-            this.attackPower + ' damage. ' + other.name + '\'s HP: ' + other.hp + '<br>');
-        if (record) $('#combat-log').append(other.name + ' attacks ' + this.name + ' for ' +
-            other.counter + ' damage. ' + this.name + '\'s HP: ' + this.hp + '<br>');
         return false;
     }
 }
 
-var characters = [new Character('Luke Skywalker', 'green', 100, 30, 10),
-new Character('Obi-Wan Kenobi', 'blue', 120, 23, 9),
-new Character('Yoda', 'green', 150, 15, 6),
-new Character('Mace Windu', 'purple', 110, 27, 9),
-new Character('Darth Sidius', 'red', 150, 21, 7),
-new Character('Darth Vader', 'red', 130, 26, 10),
-new Character('Darth Maul', 'red', 100, 35, 12),
-new Character('Count Dooku', 'red', 120, 31, 11)];
+var characters = [new Character('Luke Skywalker', 'green', 100, 57, 26),
+new Character('Obi-Wan Kenobi', 'blue', 120, 51, 23),
+new Character('Yoda', 'green', 150, 42, 17),
+new Character('Mace Windu', 'purple', 110, 57, 23),
+new Character('Darth Sidius', 'red', 150, 50, 17),
+new Character('Darth Vader', 'red', 130, 66, 21),
+new Character('Darth Maul', 'red', 100, 100, 23),
+new Character('Count Dooku', 'red', 120, 89, 20)];
 
 var player;
 var defender;
