@@ -183,7 +183,7 @@ class Character {
                                         'You and your apprentice, ' +
                                         characters.find(function (c) { return c.hp > 0; }).name +
                                         ', rule the galaxy.') :
-                                    'You have vanquished the sith. The galaxy is safe.'));
+                                    'You have vanquished the sith.<br>The galaxy is safe.'));
                             }
                         } else if (player.hp <= 0) {
                             // player died
