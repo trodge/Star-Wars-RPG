@@ -150,11 +150,12 @@ class Character {
     }
 
     fillEnemyBoxes() {
-        $('#player-character-box').after($('<h2 class="centered">').text('Choose an Enemy to Attack'))
+        $('#player-character-box').after($('<h2 class="centered" id="choose">').text('Choose an Enemy to Attack'))
         for (var i = 0; i < characters.length; ++i) {
             if (this.canAttack(characters[i])) {
                 characters[i].box.on('click', function () {
                     $('#enemies-box').empty();
+                    $('#choose').remove();
                     var attackButton = $('<button class="attack-button">');
                     attackButton.text('Attack');
                     attackButton.css({ 'margin': 'auto', 'width': '100px' });
