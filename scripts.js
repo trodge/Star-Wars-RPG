@@ -150,7 +150,7 @@ class Character {
     }
 
     fillEnemyBoxes() {
-        $('#enemies-box').append($('<h2 class="centered">').text('Choose an Enemy to Attack'))
+        $('#player-character-box').after($('<h2 class="centered">').text('Choose an Enemy to Attack'))
         for (var i = 0; i < characters.length; ++i) {
             if (this.canAttack(characters[i])) {
                 characters[i].box.on('click', function () {
