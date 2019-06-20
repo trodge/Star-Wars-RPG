@@ -178,7 +178,7 @@ class Character {
                             } else {
                                 // no enemies remain
                                 $('section').empty();
-                                $('section').append($('<h1 class="centered">').html(player.color === 'red' ?
+                                $('section').append($('<h2 class="centered">').html(player.color === 'red' ?
                                     'You have destroyed all who would stand in your way.<br>' +
                                     (sithCount() === 1 ? 'You alone rule the galaxy.' :
                                         'You and your apprentice, ' +
@@ -189,7 +189,7 @@ class Character {
                         } else if (player.hp <= 0) {
                             // player died
                             $('section').empty();
-                            $('section').append($('<h1 class="centered">').html(player.color === 'red' ?
+                            $('section').append($('<h2 class="centered">').html(player.color === 'red' ?
                                 'You were defeated by the jedi.<br>Now only the sith will tell your story' :
                                 'You have become one with the force.'));
                         }
