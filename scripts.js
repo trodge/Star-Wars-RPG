@@ -120,14 +120,14 @@ class Character {
         this.box = $('<div class="character-box" style="border: 3px ' + this.color +
             ' solid; background: ' + (this.color === 'red' ? 'black' : 'white') + '">');
         // Create a p tag for character's name
-        var nameTag = $('<p class="character-tag" id="name-tag">')
+        var nameTag = $('<p class="character-tag name-tag">')
         nameTag.text(this.name);
         this.box.append(nameTag);
         // Load this character's image
         var image = $('<img src="' + this.name.replace(/ /g, '-') + '.jpg" width=150>');
         this.box.append(image);
         // Create a p tag for character's hp
-        var hpTag = $('<p class="character-tag" id="hp-tag">')
+        var hpTag = $('<p class="character-tag hp-tag">')
         hpTag.text(this.hp);
         this.box.append(hpTag);
         // Store this for use inside click function
@@ -160,7 +160,7 @@ class Character {
                     attackButton.text('Attack');
                     attackButton.css({ 'margin': 'auto', 'width': '100px' });
                     // Name of defending character
-                    var defenderName = $(this).children('#name-tag').text();
+                    var defenderName = $(this).children('.name-tag').text();
                     // Defending character found by name
                     defender = characters[characters.findIndex(function (c) {
                         return c.name === defenderName;
@@ -190,8 +190,10 @@ class Character {
                             // player died
                             $('section').empty();
                             $('section').append($('<h2 class="centered">').html(player.color === 'red' ?
-                                'You were defeated by the jedi.<br>Now only the sith will tell your story' :
-                                'You have become one with the force.'));
+                                player.name + ' was defeated by ' +
+                                (defender.color === 'red' ? 'his fellow sith' : 'the jedi') +
+                                '.<br>Now only the sith will tell your story.' : player.name +
+                                ' was struck down by the sith.<br>You have become one with the force.'));
                         }
                     });
                     $('#attack-button-box').append(attackButton);
@@ -206,12 +208,14 @@ class Character {
     attack(other, record = true) {
         // Attack other, return true if other is dead otherwise return false.
         other.hp -= ++this.attackPower;
+        other.box.children('.hp-tag').text(other.hp);
         if (other.hp <= 0) {
             if (record) $('#combat-log').append(this.name + ' attacks ' + other.name + ' for ' +
                 this.attackPower + ' damage. ' + other.name + ' dies.<br>');
             return true;
         }
         this.hp -= other.counter;
+        this.box.children('.hp-tag').text(this.hp);
         if (record) {
             $('#combat-log').append(this.name + ' attacks ' + other.name + ' for ' +
                 this.attackPower + ' damage. ' + other.name + '\'s HP: ' + other.hp + '<br>');
